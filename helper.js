@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         UCAS SEP Helper
 // @namespace    https://github.com/ngc7331/UCAS-SEP-Helper
-// @version      0.1
+// @version      0.2
 // @description  useful tool for UCAS SEP
 // @author       xu_zh
 // @match        https://course.ucas.ac.cn/*
@@ -43,13 +43,25 @@
     }
 
     /* --- module --- */
-    function downloadAll() {
+    function resourceBulkDownload() {
         var cpy_btn = document.getElementById("copy-button");
         if (cpy_btn === null) {
             return ;
         }
 
         function downloadAllBtnListener(event) {
+            event.preventDefault();
+            worker(0);
+        }
+
+        function downloadSelBtnListener(event) {
+            event.preventDefault();
+            worker(1);
+        }
+
+        function worker(mode){
+            // mode = 0: download all
+            // mode = 1: download selected
             function download(url, filename) {
                 return new Promise(function (resolve, reject) {
                     var xhr = new XMLHttpRequest();
@@ -78,8 +90,6 @@
                 });
             }
 
-            event.preventDefault();
-
             var sched = new Scheduler();
             const addTask = (href, name, i, tot) => {
                 sched.addTask(() => download(href, name))
@@ -90,6 +100,14 @@
             trs = Array.prototype.filter.call(trs, function(elem) {
                 return elem.parentNode.href !== undefined && !elem.parentNode.href.endsWith("#");
             });
+
+            if (mode == 1) {
+                trs = Array.prototype.filter.call(trs, function(elem) {
+                    var btn = elem.parentNode.parentNode.previousElementSibling.childNodes[1];
+                    return btn.checked;
+                });
+            }
+
             console.log(trs);
             for (var i = 0; i < trs.length; i++) {
                 var href = trs[i].parentNode.href;
@@ -99,14 +117,20 @@
             }
         }
 
-        var dl_btn = document.createElement("button");
-        dl_btn.style="margin:0";
-        dl_btn.className="btn";
-        dl_btn.innerHTML="下载全部";
-        dl_btn.addEventListener("click", downloadAllBtnListener);
-        cpy_btn.parentNode.appendChild(dl_btn);
+        var dl_sel_btn = document.createElement("button");
+        dl_sel_btn.style="margin:0";
+        dl_sel_btn.className="btn";
+        dl_sel_btn.innerHTML="下载已选";
+        dl_sel_btn.addEventListener("click", downloadSelBtnListener);
+        cpy_btn.parentNode.appendChild(dl_sel_btn);
+        var dl_all_btn = document.createElement("button");
+        dl_all_btn.style="margin:0";
+        dl_all_btn.className="btn";
+        dl_all_btn.innerHTML="下载全部";
+        dl_all_btn.addEventListener("click", downloadAllBtnListener);
+        cpy_btn.parentNode.appendChild(dl_all_btn);
     }
 
     /* --- register --- */
-    downloadAll();
+    resourceBulkDownload();
 })();

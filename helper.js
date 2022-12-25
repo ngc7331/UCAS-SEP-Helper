@@ -90,28 +90,43 @@
                 });
             }
 
+            function getA(tr) {
+                return tr.querySelector("td:nth-child(3) > a:nth-child(2)");
+            }
+
+            function getCheckBox(tr) {
+                return tr.querySelector("td:nth-child(2) > input");
+            }
+
             var sched = new Scheduler();
             const addTask = (href, name, i, tot) => {
                 sched.addTask(() => download(href, name))
                      .then(() => console.log(`Done ${i+1}/${tot}`));
             }
 
-            var trs = document.getElementsByClassName("visible-sm-inline visible-xs-inline");
+            var trs = document.querySelectorAll("#showForm > table > tbody > tr");
+
+            // filter out folders
             trs = Array.prototype.filter.call(trs, function(elem) {
-                return elem.parentNode.href !== undefined && !elem.parentNode.href.endsWith("#");
+                var a = getA(elem);
+                return a !== null && a.href !== undefined && !a.href.endsWith("#");
             });
 
+            // filter out unchecked
             if (mode == 1) {
                 trs = Array.prototype.filter.call(trs, function(elem) {
-                    var btn = elem.parentNode.parentNode.previousElementSibling.childNodes[1];
-                    return btn.checked;
+                    var box = getCheckBox(elem);
+                    return box.checked;
                 });
             }
 
             console.log(trs);
+
+            // download
             for (var i = 0; i < trs.length; i++) {
-                var href = trs[i].parentNode.href;
-                var name = trs[i].nextElementSibling.innerHTML;
+                var a = getA(trs[i]);
+                var href = a.href;
+                var name = a.children[1].innerHTML;
                 console.log(`Add task (${i+1}/${trs.length})`);
                 addTask(href, name, i, trs.length);
             }

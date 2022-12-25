@@ -45,7 +45,8 @@
     /* --- module --- */
     function resourceBulkDownload() {
         var cpy_btn = document.getElementById("copy-button");
-        if (cpy_btn === null) {
+        var curr_page = document.querySelector("#toolMenu > ul > li.is-current > a");
+        if (cpy_btn === null || curr_page.title !== "资源") {
             return ;
         }
 

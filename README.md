@@ -39,6 +39,13 @@
 - 一次性下载过多文件可能导致丢失，不清楚是浏览器、网络限制还是脚本有误，请考虑使用“下载已选”功能
 - 可以使用`F12`打开控制台查看下载请求
 
+### 保持登录
+自动点击“保持在线状态”弹窗的按钮
+
+每5分钟检查一次
+
+建议不要在公用电脑上使用该功能
+
 ## 使用方式
 1. 推荐使用 Edge、Chrome、FireFox 浏览器，编写时使用 Edge 108.0.1462.54
 2. 安装油猴脚本插件，可以参考[这篇文章](https://zhuanlan.zhihu.com/p/387251122)
@@ -46,3 +53,8 @@
 4. 打开油猴插件，选择添加新脚本，粘贴3中复制的内容，保存
    ![image.png](https://s2.loli.net/2022/12/25/9nRqLoQv3tgJKYd.png)
 5. 刷新课程网站
+6. 更新：打开油猴插件管理面板，打开脚本，覆盖为新的内容即可。
+
+   亦可在设置里勾选“检查更新”并将更新URL填为：`https://raw.githubusercontent.com/ngc7331/UCAS-SEP-Helper/main/helper.js`即可
+
+   若访问 github 有困难，可以考虑使用 CDN，例如：`https://fastly.jsdelivr.net/gh/ngc7331/UCAS-SEP-Helper@main/helper.js`

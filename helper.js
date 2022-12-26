@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         UCAS SEP Helper
 // @namespace    https://github.com/ngc7331/UCAS-SEP-Helper
-// @version      0.2
+// @version      0.3
 // @description  useful tool for UCAS SEP
 // @author       xu_zh
 // @match        https://course.ucas.ac.cn/*
@@ -44,22 +44,6 @@
 
     /* --- module --- */
     function resourceBulkDownload() {
-        var cpy_btn = document.getElementById("copy-button");
-        var curr_page = document.querySelector("#toolMenu > ul > li.is-current > a");
-        if (cpy_btn === null || curr_page.title !== "资源") {
-            return ;
-        }
-
-        function downloadAllBtnListener(event) {
-            event.preventDefault();
-            worker(0);
-        }
-
-        function downloadSelBtnListener(event) {
-            event.preventDefault();
-            worker(1);
-        }
-
         function worker(mode){
             // mode = 0: download all
             // mode = 1: download selected
@@ -133,20 +117,58 @@
             }
         }
 
+        function downloadAllBtnListener(event) {
+            event.preventDefault();
+            worker(0);
+        }
+
+        function downloadSelBtnListener(event) {
+            event.preventDefault();
+            worker(1);
+        }
+
+        var curr_page = document.querySelector("#toolMenu > ul > li.is-current > a");
+        var cpy_btn = document.getElementById("copy-button");
+        if (cpy_btn === null || curr_page.title !== "资源") {
+            return ;
+        }
+
+        // create buttons
         var dl_sel_btn = document.createElement("button");
         dl_sel_btn.style="margin:0";
         dl_sel_btn.className="btn";
         dl_sel_btn.innerHTML="下载已选";
         dl_sel_btn.addEventListener("click", downloadSelBtnListener);
-        cpy_btn.parentNode.appendChild(dl_sel_btn);
         var dl_all_btn = document.createElement("button");
         dl_all_btn.style="margin:0";
         dl_all_btn.className="btn";
         dl_all_btn.innerHTML="下载全部";
         dl_all_btn.addEventListener("click", downloadAllBtnListener);
+
+        // insert buttons on page
+        cpy_btn.parentNode.appendChild(dl_sel_btn);
         cpy_btn.parentNode.appendChild(dl_all_btn);
+    }
+
+    function keepMeAlive() {
+        function worker() {
+            var alert = document.querySelector("#timeout_alert_body");
+            if (alert === null) {
+                return ;
+            }
+
+            console.log("Keep alive...");
+
+            var btn = alert.querySelector("input[type=button]");
+            btn.click();
+        }
+
+        // check every 5 min
+        const interval = 5 * 60 * 1000;
+        window.setInterval(worker, interval);
     }
 
     /* --- register --- */
     resourceBulkDownload();
+    keepMeAlive();
 })();

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         UCAS SEP Helper
 // @namespace    https://github.com/ngc7331/UCAS-SEP-Helper
-// @version      0.3
+// @version      0.3.1
 // @description  useful tool for UCAS SEP
 // @author       xu_zh
 // @match        https://course.ucas.ac.cn/*
@@ -163,9 +163,36 @@
             btn.click();
         }
 
+        function enableBtnListener(event) {
+            if (enable_btn.checked) {
+                console.log("Keep alive enabled");
+                worker_id = window.setInterval(worker, interval);
+            } else {
+                console.log("Keep alive disabled");
+                window.clearInterval(worker_id);
+            }
+        }
+
+        // create setting
+        var enable_btn = document.createElement("input");
+        enable_btn.type = "checkbox";
+        enable_btn.checked = true;
+        enable_btn.addEventListener("change", enableBtnListener);
+        var enable_hint = document.createElement("a");
+        enable_hint.innerHTML = "保持在线";
+        enable_hint.href = "#";
+        enable_hint.appendChild(enable_btn);
+        var enable_li = document.createElement("li");
+        enable_li.className = "Mrphs-userNav__submenuitem Mrphs-userNav__submenuitem-indented";
+        enable_li.appendChild(enable_hint);
+
+        // insert setting on page
+        var menu = document.querySelector("#loginLinks > li.Mrphs-userNav__popup.js-toggle-user-nav > ul");
+        menu.appendChild(enable_li);
+
         // check every 5 min
         const interval = 5 * 60 * 1000;
-        window.setInterval(worker, interval);
+        var worker_id = window.setInterval(worker, interval);
     }
 
     /* --- register --- */

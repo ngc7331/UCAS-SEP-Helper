@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         UCAS SEP Helper
 // @namespace    https://github.com/ngc7331/UCAS-SEP-Helper
-// @version      0.5.0
+// @version      0.5.1
 // @description  useful tool for UCAS SEP
 // @author       xu_zh
 // @match        https://course.ucas.ac.cn/*
@@ -151,14 +151,14 @@
 
         // create buttons
         var dl_sel_btn = document.createElement("button");
-        dl_sel_btn.style="margin:0";
-        dl_sel_btn.className="btn";
-        dl_sel_btn.innerHTML="下载已选";
+        dl_sel_btn.style = "margin:0";
+        dl_sel_btn.className = "btn";
+        dl_sel_btn.innerHTML = "下载已选";
         dl_sel_btn.addEventListener("click", downloadSelBtnListener);
         var dl_all_btn = document.createElement("button");
-        dl_all_btn.style="margin:0";
-        dl_all_btn.className="btn";
-        dl_all_btn.innerHTML="下载全部";
+        dl_all_btn.style = "margin:0";
+        dl_all_btn.className = "btn";
+        dl_all_btn.innerHTML = "下载全部";
         dl_all_btn.addEventListener("click", downloadAllBtnListener);
         var display = document.createElement("span");
         display.style = "padding: 5px 10px; display:block; float:left;";
@@ -196,6 +196,7 @@
         var enable_btn = document.createElement("input");
         enable_btn.type = "checkbox";
         enable_btn.checked = true;
+        enable_btn.style = "margin: 0 5px;";
         enable_btn.addEventListener("change", enableBtnListener);
         var enable_hint = document.createElement("a");
         enable_hint.innerHTML = "保持在线";

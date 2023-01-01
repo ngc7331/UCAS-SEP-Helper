@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         UCAS SEP Helper
 // @namespace    https://github.com/ngc7331/UCAS-SEP-Helper
-// @version      0.4.0
+// @version      0.5.0
 // @description  useful tool for UCAS SEP
 // @author       xu_zh
 // @match        https://course.ucas.ac.cn/*
@@ -21,6 +21,7 @@
             this._lim = 5;
             this.queue = [];
             this.working = [];
+            this._display = null;
         }
         addTask(task) {
             return new Promise((resolve) => {
@@ -30,6 +31,7 @@
                 } else {
                     this.queue.push(task);
                 }
+                this.updateDisplay();
             });
         }
         runTask(task) {
@@ -41,7 +43,17 @@
                 if (this.queue.length > 0) {
                     this.runTask(this.queue.shift());
                 }
+                this.updateDisplay();
             });
+        }
+        setDisplay(elem) {
+            this._display = elem;
+        }
+        updateDisplay() {
+            if (this._display === null) {
+                return ;
+            }
+            this._display.innerHTML = `运行/排队: ${this.working.length}/${this.queue.length}`;
         }
     }
 
@@ -87,6 +99,7 @@
             }
 
             var sched = new Scheduler();
+            sched.setDisplay(display);
             const addTask = (href, name, i, tot) => {
                 sched.addTask(() => download(href, name))
                      .then(() => console.log(`Done ${i+1}/${tot}`));
@@ -147,10 +160,13 @@
         dl_all_btn.className="btn";
         dl_all_btn.innerHTML="下载全部";
         dl_all_btn.addEventListener("click", downloadAllBtnListener);
+        var display = document.createElement("span");
+        display.style = "padding: 5px 10px; display:block; float:left;";
 
         // insert buttons on page
         cpy_btn.parentNode.appendChild(dl_sel_btn);
         cpy_btn.parentNode.appendChild(dl_all_btn);
+        cpy_btn.parentNode.appendChild(display);
     }
 
     function keepMeAlive() {

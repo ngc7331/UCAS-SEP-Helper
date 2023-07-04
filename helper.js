@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         UCAS SEP Helper
 // @namespace    https://github.com/ngc7331/UCAS-SEP-Helper
-// @version      0.5.1
+// @version      0.5.2
 // @description  useful tool for UCAS SEP
 // @author       xu_zh
 // @match        https://course.ucas.ac.cn/*
@@ -57,6 +57,13 @@
         }
     }
 
+    function register(func, hostname) {
+        if (window.location.hostname !== hostname) {
+            return ;
+        }
+        func();
+    }
+
     /* --- module --- */
     function resourceBulkDownload() {
         function worker(mode){
@@ -76,6 +83,7 @@
                             a.href = url;
                             a.download = filename;
                             a.click();
+                            window.URL.revokeObjectURL(url);
                             console.log(`Downloaded ${filename}`);
                             resolve();
                         } else {
@@ -208,6 +216,9 @@
 
         // insert setting on page
         var menu = document.querySelector("#loginLinks > li.Mrphs-userNav__popup.js-toggle-user-nav > ul");
+        if (menu === null) {
+            return ;
+        }
         menu.appendChild(enable_li);
 
         // check every 5 min
@@ -216,6 +227,6 @@
     }
 
     /* --- register --- */
-    resourceBulkDownload();
-    keepMeAlive();
+    register(resourceBulkDownload, "course.ucas.ac.cn")
+    register(keepMeAlive, "course.ucas.ac.cn")
 })();

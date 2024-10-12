@@ -1,5 +1,54 @@
 # UCAS-SEP-Helper
-## 前言
+## 功能
+### 课程评估系统CORS绕过
+~~这个系统做的也太烂了~~
+
+由于系统非常古老，js脚本内使用了直接访问iframe内部DOM节点的写法，在现代浏览器中可能出现`Uncaught SecurityError`问题，导致无法保存评价
+
+这一行为目前似乎只出现在“确认是否提交”的弹窗中，因此理论上可以跳过弹窗直接触发表单的submit事件
+
+罪魁祸首：
+```javascript
+window.alert = function(name){
+	var iframe = document.createElement("IFRAME");
+	iframe.style.display="none";
+	iframe.setAttribute("src", 'data:text/plain,');
+	document.documentElement.appendChild(iframe);
+	window.frames[0].window.alert(name);
+	iframe.parentNode.removeChild(iframe);
+}
+```
+
+问题触发点：
+```javascript
+var tiptitle = "确认提交吗？";
+top.$.jBox.confirm(tiptitle,"系统提示",function(v,h,f){
+	if(v=="ok"){
+		$("#sb1").attr("disabled",true);
+		loading('正在提交，请稍等...');
+		form.submit();
+	}
+},{buttonsFocus:1});
+```
+
+本脚本在`保存`按钮上新增了一个EventLisener，点击时直接触发`form.submit()`，从而绕过CORS问题
+
+**注意：这也会导致评价的提交没有二次确认，请在点击保存前自行确认待提交内容，~~虽然我猜测一个课程评估也没人会想要二次确认~~**
+
+## 使用方式
+1. 推荐使用 Edge、Chrome、FireFox 浏览器，编写时使用 Edge 129.0.2792.79
+2. 安装油猴脚本插件，可以参考[这篇文章](https://zhuanlan.zhihu.com/p/387251122)
+3. 复制本仓库下`helper.js`文件的**全部内容**备用
+4. 打开油猴插件，选择添加新脚本，粘贴3中复制的内容，保存
+   ![image.png](https://s2.loli.net/2022/12/25/9nRqLoQv3tgJKYd.png)
+5. 刷新网页
+6. 更新：打开油猴插件管理面板，打开脚本，覆盖为新的内容即可。
+   - 亦可在设置里勾选“检查更新”并将更新URL填为：`https://raw.githubusercontent.com/ngc7331/UCAS-SEP-Helper/main/helper.js`即可
+   - 若访问 github 有困难，可以考虑使用 CDN，例如：`https://fastly.jsdelivr.net/gh/ngc7331/UCAS-SEP-Helper@main/helper.js`
+
+## **已弃用** 前言
+下面是曾经的bb
+
 ### 关于命名
 虽然目前实现和计划实现的功能都集中在课程网站，只是`Course-Helper`总感觉怪怪的，因此还是选择叫`SEP-Helper`
 
@@ -21,7 +70,10 @@
 
 联想到以前用过的一些~~百⚪网盘直链下载~~之类的工具，我意识到可以使用油猴脚本在课程网站页面上添加按钮等元素，实现功能补充
 
-## 功能
+## **已弃用**功能
+
+**course.ucas.ac.cn 已弃用，详情请看学校通知**
+
 ### 批量下载课程资源
 安装脚本后，打开任意课程的资源页面，应该可以看到在顶栏“复制”按钮的右侧增加了“下载已选”和“下载全部”按钮
 
@@ -54,16 +106,3 @@
 安装脚本后，进入到某一个课程的问卷中时，可以看到“计分问卷 问卷满分：100”右侧出现了“填充”按钮，点击即可自动填写问卷，请人工复核后点击页面底部的“提交”按钮提交问卷。亦可点击“填充并提交”按钮自动填写并提交
 
 由于问卷页面采用js脚本载入数据，在油猴脚本开始执行的时候问卷不一定已经加载完毕。目前采用1秒的延迟解决，可能因网络较慢等因素失败（e.g. 1秒内问卷仍未加载完毕）。有更好的方法欢迎 PR
-
-## 使用方式
-1. 推荐使用 Edge、Chrome、FireFox 浏览器，编写时使用 Edge 108.0.1462.54
-2. 安装油猴脚本插件，可以参考[这篇文章](https://zhuanlan.zhihu.com/p/387251122)
-3. 复制本仓库下`helper.js`文件的**全部内容**备用
-4. 打开油猴插件，选择添加新脚本，粘贴3中复制的内容，保存
-   ![image.png](https://s2.loli.net/2022/12/25/9nRqLoQv3tgJKYd.png)
-5. 刷新课程网站
-6. 更新：打开油猴插件管理面板，打开脚本，覆盖为新的内容即可。
-
-   亦可在设置里勾选“检查更新”并将更新URL填为：`https://raw.githubusercontent.com/ngc7331/UCAS-SEP-Helper/main/helper.js`即可
-
-   若访问 github 有困难，可以考虑使用 CDN，例如：`https://fastly.jsdelivr.net/gh/ngc7331/UCAS-SEP-Helper@main/helper.js`

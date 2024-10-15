@@ -1,23 +1,17 @@
 # UCAS-SEP-Helper
 ## 功能
 ### 课程评估系统CORS绕过
-~~这个系统做的也太烂了~~
+~~我要向学校谢罪，前几天的结论不对，这个锅不能完全由学校系统背~~
 
-由于系统非常古老，js脚本内使用了直接访问iframe内部DOM节点的写法，在现代浏览器中可能出现`Uncaught SecurityError`问题，导致无法保存评价
+~~本人js水平半吊子，仅供参考~~
 
-这一行为目前似乎只出现在“确认是否提交”的弹窗中，因此理论上可以跳过弹窗直接触发表单的submit事件
+学校系统使用的jQuery框架可能和Zotero Connector等插件产生冲突：
+- 这些插件会在页面中创建iframe DOM节点来实现插件功能
+- jQuery的jBox在显示确认弹窗时会尝试获取body和iframe内部节点
+ ![屏幕截图 2024-10-15 123617](https://github.com/user-attachments/assets/2a43c3b7-61f9-4e9c-b91b-14d71eb8df5c)
+- 学校配置的站点策略是strict-origin-when-cross-origin，即不允许跨域
 
-罪魁祸首：
-```javascript
-window.alert = function(name){
-	var iframe = document.createElement("IFRAME");
-	iframe.style.display="none";
-	iframe.setAttribute("src", 'data:text/plain,');
-	document.documentElement.appendChild(iframe);
-	window.frames[0].window.alert(name);
-	iframe.parentNode.removeChild(iframe);
-}
-```
+综合以上情况，当点击“提交”按钮时，jQuery尝试获取了插件创建的iframe内部节点，造成`Uncaught SecurityError`例外，无法保存评价
 
 问题触发点：
 ```javascript
@@ -31,9 +25,12 @@ top.$.jBox.confirm(tiptitle,"系统提示",function(v,h,f){
 },{buttonsFocus:1});
 ```
 
-本脚本在`保存`按钮上新增了一个EventLisener，点击时直接触发`form.submit()`，从而绕过CORS问题
+这一行为目前似乎只用于显示弹窗，而实际的表单提交功能仍然是通过触发表单的submit事件实现，理论上可以跳过显示弹窗直接调用`form.submit()`
 
-**注意：这也会导致评价的提交没有二次确认，请在点击保存前自行确认待提交内容，~~虽然我猜测一个课程评估也没人会想要二次确认~~**
+解决方案：
+1. 使用本脚本，本脚本在`保存`按钮上新增了一个EventLisener，点击时直接调用`form.submit()`，从而绕过CORS问题
+   **注意：这也会导致评价的提交没有二次确认，请在点击保存前自行确认待提交内容，~~虽然我猜测一个课程评估也没人会想要二次确认~~**
+2. 在进行课程评估时关闭浏览器插件，或更换没有插件的浏览器（如手机）
 
 ## 使用方式
 1. 推荐使用 Edge、Chrome、FireFox 浏览器，编写时使用 Edge 129.0.2792.79

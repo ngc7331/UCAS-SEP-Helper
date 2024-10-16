@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         UCAS SEP Helper
 // @namespace    https://github.com/ngc7331/UCAS-SEP-Helper
-// @version      1.0.1
+// @version      1.1.0
 // @description  useful tool for UCAS SEP
 // @author       xu_zh
 // @match        https://course.ucas.ac.cn/*
@@ -233,7 +233,7 @@
         var worker_id = window.setInterval(worker, interval);
     }
 
-    function coursePoll() {
+    function coursePoll_undergraduate() {
         function worker(do_submit) {
             function fill(card) {
                 var input = card.querySelector("div > div:nth-child(3) > div > table > tr > td:nth-child(1) > div > div > div.el-checkbox-group > div:nth-child(1) > label");
@@ -312,6 +312,63 @@
         }, 1000);
     }
 
+    function coursePoll() {
+        function singleSelectBtnListener(event) {
+            var level = parseInt(event.target.getAttribute("data-level"));
+            console.log(`Single select level: ${level}`);
+
+            var trs = single_select_form.querySelectorAll("tbody > tr");
+            for (var i = 0; i < trs.length; i++) {
+                var options = trs[i].querySelectorAll("td > input");
+                if (options.length === 0 || level >= options.length) {
+                    console.warn("No options found at row#", i, ", skip...");
+                    continue;
+                }
+                options[level].click();
+            }
+        }
+
+        function textFillBtnListener(event) {
+            const default_text = {
+                1355: "好好好好好好好好好好好好好好好",
+                1356: "非常好课程，我没有进一步的建议",
+                1357: `平均每周在这门课程上花费${Math.floor(Math.random()*30)}小时`,
+                1358: "感兴趣感兴趣感兴趣感兴趣感兴趣",
+                1359: "出全勤出全勤出全勤出全勤出全勤",
+                1403: "好好好好好好好好好好好好好好好",
+                1404: "非常好老师，我没有进一步的建议",
+            }
+
+            text_fill_btn.value = "Disclaimer: 课程评估的目的是帮助学校更好的改进课程，造福未来的学弟学妹。在时间精力允许的情况下，还请自行完成！";
+
+            for (var key in default_text) {
+                var input = document.querySelector(`textarea#item_${key}`);
+                if (input === null) {
+                    console.warn(`Textarea not found: item_${key}`);
+                    continue;
+                }
+                input.value = default_text[key];
+            }
+        }
+
+        var single_select_form = document.querySelector("#regfrm > table");
+        var single_select_ths = single_select_form.querySelectorAll("thead > tr > th");
+        for (var i = 2; i < single_select_ths.length; i++) {
+            var btn = document.createElement("input");
+            btn.type = "button";
+            btn.value = "全选";
+            btn.setAttribute("data-level", i - 2);
+            btn.addEventListener("click", singleSelectBtnListener);
+            single_select_ths[i].appendChild(btn);
+        }
+
+        var text_fill_btn = document.createElement("input");
+        text_fill_btn.type = "button";
+        text_fill_btn.value = "填充默认文本";
+        text_fill_btn.addEventListener("click", textFillBtnListener);
+        single_select_form.parentNode.insertBefore(text_fill_btn, single_select_form.nextElementSibling);
+    }
+
     function fixCORS() {
         var submit_btn = document.querySelector("#main-content > div > div.m-cbox.m-lgray > div.mc-body > div.form-actions > button") // evaluateCourse
                        || document.querySelector("#main-content > div > div.m-cbox.m-lgray > div.mc-body > button"); // evaluateTeacher
@@ -323,8 +380,9 @@
     }
 
     /* --- register --- */
-    register(resourceBulkDownload, "course.ucas.ac.cn");  // NOTE: deprecated
-    register(keepMeAlive, "course.ucas.ac.cn");  // NOTE: deprecated
-    register(coursePoll, "bkkcpj.ucas.ac.cn");  // NOTE: deprecated
+    register(resourceBulkDownload, "course.ucas.ac.cn"); // NOTE: deprecated
+    register(keepMeAlive, "course.ucas.ac.cn"); // NOTE: deprecated
+    register(coursePoll_undergraduate, "bkkcpj.ucas.ac.cn"); // NOTE: deprecated
+    register(coursePoll, "xkcts.ucas.ac.cn");
     register(fixCORS, "xkcts.ucas.ac.cn");
 })();

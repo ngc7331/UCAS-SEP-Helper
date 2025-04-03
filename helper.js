@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         UCAS SEP Helper
 // @namespace    https://github.com/ngc7331/UCAS-SEP-Helper
-// @version      1.2.0
+// @version      1.2.1
 // @description  useful tool for UCAS SEP
 // @author       xu_zh
 // @match        https://course.ucas.ac.cn/*
@@ -332,25 +332,37 @@
         }
 
         function textFillBtnListener(event) {
-            const default_text = {
-                1355: "好好好好好好好好好好好好好好好",
-                1356: "非常好课程，我没有进一步的建议",
-                1357: `平均每周在这门课程上花费${Math.floor(Math.random()*30)}小时`,
-                1358: "感兴趣感兴趣感兴趣感兴趣感兴趣",
-                1359: "出全勤出全勤出全勤出全勤出全勤",
-                1403: "好好好好好好好好好好好好好好好",
-                1404: "非常好老师，我没有进一步的建议",
+            let default_text;
+            if (window.location.href.includes("evaluateCourse")) {
+                default_text = [
+                    "好好好好好好好好好好好好好好好",
+                    "非常好课程，我没有进一步的建议",
+                    `平均每周在这门课程上花费${Math.floor(Math.random()*30)}小时`,
+                    "感兴趣感兴趣感兴趣感兴趣感兴趣",
+                    "出全勤出全勤出全勤出全勤出全勤",
+                ];
+            } else if (window.location.href.includes("evaluateTeacher")) {
+                default_text = [
+                    "好好好好好好好好好好好好好好好",
+                    "非常好老师，我没有进一步的建议",
+                ];
+            } else {
+                console.warn("Unknown page type, no default text filled");
+                return ;
             }
 
             text_fill_btn.value = "Disclaimer: 课程评估的目的是帮助学校更好的改进课程，造福未来的学弟学妹。在时间精力允许的情况下，还请自行完成！";
 
-            for (var key in default_text) {
-                var input = document.querySelector(`textarea#item_${key}`);
-                if (input === null) {
-                    console.warn(`Textarea not found: item_${key}`);
-                    continue;
-                }
-                input.value = default_text[key];
+            var textareas = document.querySelectorAll("textarea");
+
+            if (textareas.length !== default_text.length) {
+                console.warn(`Textarea count mismatch, expected ${default_text.length}, but got ${textareas.length}`);
+                return ;
+            }
+
+            for (var i = 0; i < textareas.length; i++) {
+                var input = textareas[i];
+                input.value = default_text[i];
             }
         }
 
